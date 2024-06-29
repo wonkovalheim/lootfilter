@@ -1,6 +1,8 @@
 # Description
 ## A Valheim mod that adds a blacklist filter to the auto loot system.
-[GitHub](https://github.com/wonkovalheim/lootfilter)
+
+Check out the mod on [GitHub](https://github.com/wonkovalheim/lootfilter)
+
 --- 
 
 You can adjust the config values in-game using
