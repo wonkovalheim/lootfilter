@@ -1,0 +1,2 @@
+# lootfilter
+Loot blacklist
