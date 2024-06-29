@@ -14,7 +14,7 @@ namespace lootfilter {
     [BepInPlugin(ModGUID, ModName, ModVersion)]
     public class LootFilter : BaseUnityPlugin {
         internal const string ModName = "LootFilter";
-        internal const string ModVersion = "1.0.0";
+        internal const string ModVersion = "1.0.1";
         internal const string Author = "wonkotron";
         private const string ModGUID = Author + "." + ModName;
 
