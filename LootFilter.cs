@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using System.Reflection;
 
@@ -21,7 +22,11 @@ namespace lootfilter {
         private Harmony _harmony;
 
         public static ConfigEntry<bool> filterEnabled;
-        public static ConfigEntry<string> filterString;
+        private static ConfigEntry<string> blacklistString;
+        public static string[] blacklist {
+            get;
+            private set;
+        }
 
         private static LootFilter _instance;
 
@@ -31,11 +36,26 @@ namespace lootfilter {
             
             _harmony = Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), ModGUID);
 
-            filterEnabled = Config.Bind("Filter", "Filter Enabled", true, "Enable Item Filter");
-            filterString = Config.Bind("Filter", "Item Blacklist", "", "Comma separated list of PrefabID strings, NO SPACES");
+            filterEnabled = Config.Bind("Filter", "Filter Enabled", true, "Enable Loot Filter");
+            blacklistString = Config.Bind("Filter", "Item Blacklist", "", "Comma separated list (NO SPACES) of PrefabID strings (e.g. Resin,LeatherScraps)");
+
+            // init blacklist
+            blacklist = blacklistString.Value.Split(',');
+
+            Config.SettingChanged += Config_SettingChanged;
         }
 
+        private void Config_SettingChanged(object sender, EventArgs e) {
+            Config.SettingChanged -= Config_SettingChanged;  // unsubscribe before executing
+
+            blacklist = blacklistString.Value.Split(',');
+
+            Config.SettingChanged += Config_SettingChanged; // resubscribe
+        }
+
+        [UsedImplicitly]
         private void OnDestroy() {
+            Config.SettingChanged -= Config_SettingChanged;
             _harmony?.UnpatchSelf();
         }
     }
@@ -45,9 +65,7 @@ namespace lootfilter {
         public static void Postfix(ItemDrop.ItemData item, int stack, ref bool __result) {
             if (__result) {  // only fire when CanAddItem was going to return true
                 if (LootFilter.filterEnabled.Value) {
-                    string[] itemIds = LootFilter.filterString.Value.Split(',');
-
-                    if (itemIds.Contains(item.m_dropPrefab.name)) {
+                    if (LootFilter.blacklist.Contains(item.m_dropPrefab.name)) {
                         __result = false;
                     }
                 }
