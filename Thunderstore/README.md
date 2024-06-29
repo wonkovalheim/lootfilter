@@ -1,8 +1,6 @@
 # Description
 ## A Valheim mod that adds a blacklist filter to the auto loot system.
 
-Check it out on [GitHub](https://github.com/wonkovalheim/lootfilter)
-
 You can adjust the config values in-game using
 the [Configuration Manager](https://valheim.thunderstore.io/package/Azumatt/Official_BepInEx_ConfigurationManager/).
 
@@ -17,4 +15,4 @@ Enter a comma separated list (no spaces) of [Prefab IDs](https://valheim-modding
 ## r2modman
 1. Install [r2modman](https://valheim.thunderstore.io/package/ebkr/r2modman/)
 2. Search for LootFilter under the Online tab.
-3. Clock Download
+3. Click Download
