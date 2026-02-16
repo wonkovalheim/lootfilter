@@ -12,10 +12,5 @@ Enter a comma separated list (no spaces) of [Prefab IDs](https://valheim-modding
 1. [BepInEx](https://thunderstore.io/c/valheim/p/denikson/BepInExPack_Valheim/)
 2. [Official BepInEx Configuration Manager](https://valheim.thunderstore.io/package/Azumatt/Official_BepInEx_ConfigurationManager/)
 
-## Manual Installation
-1. Extract the contents of the zip file to the `BepInEx/plugins` folder.
-
-## r2modman
-1. Install [r2modman](https://valheim.thunderstore.io/package/ebkr/r2modman/)
-2. Search for LootFilter under the Online tab.
-3. Click Download
+## Releases
+https://thunderstore.io/c/valheim/p/wonkotron/LootFilter/
