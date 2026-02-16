@@ -15,20 +15,20 @@ namespace lootfilter {
     [BepInPlugin(ModGUID, ModName, ModVersion)]
     public class LootFilter : BaseUnityPlugin {
         internal const string ModName = "LootFilter";
-        internal const string ModVersion = "1.0.1";
+        internal const string ModVersion = "1.0.2";
         internal const string Author = "wonkotron";
         private const string ModGUID = Author + "." + ModName;
 
-        private Harmony _harmony;
+        private Harmony _harmony = null!;
 
-        public static ConfigEntry<bool> filterEnabled;
-        private static ConfigEntry<string> blacklistString;
+        public static ConfigEntry<bool> filterEnabled = null!;
+        private static ConfigEntry<string> blacklistString = null!;
         public static string[] blacklist {
             get;
             private set;
-        }
+        } = null!;
 
-        private static LootFilter _instance;
+        private static LootFilter _instance = null!;
 
         [UsedImplicitly]
         private void Awake() {
@@ -65,8 +65,16 @@ namespace lootfilter {
         public static void Postfix(ItemDrop.ItemData item, int stack, ref bool __result) {
             if (__result) {  // only fire when CanAddItem was going to return true
                 if (LootFilter.filterEnabled.Value) {
-                    if (LootFilter.blacklist.Contains(item.m_dropPrefab.name)) {
-                        __result = false;
+                    string? name = item?.m_dropPrefab?.name;
+
+                    if (string.IsNullOrEmpty(name)) {
+                        // TODO:  log error and explicitly return
+                        return;
+                    }
+                    else {
+                        if (LootFilter.blacklist.Contains(name)) {
+                            __result = false;  // only change result of CanAddItem if a match is in the filter
+                        }
                     }
                 }
             }
