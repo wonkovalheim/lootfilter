@@ -5,6 +5,6 @@
     "description": "Adds an item blacklist filter to the auto loot system",
     "dependencies": [
       "denikson-BepInExPack_Valheim-5.4.2333",
-      "Azumatt-Official_BepInEx_ConfigurationManager-18.4.4"
+      "Azumatt-Official_BepInEx_ConfigurationManager-18.4.1"
     ]
   }
