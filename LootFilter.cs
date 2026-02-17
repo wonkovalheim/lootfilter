@@ -23,6 +23,8 @@ namespace lootfilter {
 
         public static ConfigEntry<bool> filterEnabled = null!;
         private static ConfigEntry<string> blacklistString = null!;
+        public static ConfigEntry<bool> debugLogging = null!;
+
         public static string[] blacklist {
             get;
             private set;
@@ -30,14 +32,19 @@ namespace lootfilter {
 
         private static LootFilter _instance = null!;
 
+        public static ManualLogSource Log { get; private set; } = null!;
+
         [UsedImplicitly]
         private void Awake() {
             _instance = this;
+
+            LootFilter.Log = base.Logger;
             
             _harmony = Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), ModGUID);
 
             filterEnabled = Config.Bind("Filter", "Filter Enabled", true, "Enable Loot Filter");
             blacklistString = Config.Bind("Filter", "Item Blacklist", "", "Comma separated list (NO SPACES) of PrefabID strings (e.g. Resin,LeatherScraps)");
+            debugLogging = Config.Bind("Debug", "Debug Logging", false, "Enable debug logging for this plugin");
 
             // init blacklist
             blacklist = blacklistString.Value.Split(',');
@@ -68,8 +75,12 @@ namespace lootfilter {
                     string? name = item?.m_dropPrefab?.name;
 
                     if (string.IsNullOrEmpty(name)) {
-                        // TODO:  log error and explicitly return
-                        return;
+                        if (LootFilter.debugLogging.Value) {
+                            LootFilter.Log.LogDebug("null or empty item?.m_dropPrefab?.name (https://github.com/wonkovalheim/lootfilter/issues/2)");
+                            LootFilter.Log.LogDebug($"item null?  {item == null}");
+                            LootFilter.Log.LogDebug($"item.m_dropPrefab null? {item?.m_dropPrefab == null}");
+                            LootFilter.Log.LogDebug($"item.m_dropPrefab.name null? {item?.m_dropPrefab?.name == null}");
+                        }
                     }
                     else {
                         if (LootFilter.blacklist.Contains(name)) {
