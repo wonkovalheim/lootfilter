@@ -1,10 +1,10 @@
 {
     "name": "LootFilter",
-    "version_number": "1.0.1",
+    "version_number": "1.0.2",
     "website_url": "https://github.com/wonkovalheim/lootfilter",
     "description": "Adds an item blacklist filter to the auto loot system",
     "dependencies": [
-      "denikson-BepInExPack_Valheim-5.4.2202",
-      "Azumatt-Official_BepInEx_ConfigurationManager-18.3.0"
+      "denikson-BepInExPack_Valheim-5.4.2333",
+      "Azumatt-Official_BepInEx_ConfigurationManager-18.4.1"
     ]
   }

@@ -15,29 +15,36 @@ namespace lootfilter {
     [BepInPlugin(ModGUID, ModName, ModVersion)]
     public class LootFilter : BaseUnityPlugin {
         internal const string ModName = "LootFilter";
-        internal const string ModVersion = "1.0.1";
+        internal const string ModVersion = "1.0.2";
         internal const string Author = "wonkotron";
         private const string ModGUID = Author + "." + ModName;
 
-        private Harmony _harmony;
+        private Harmony _harmony = null!;
 
-        public static ConfigEntry<bool> filterEnabled;
-        private static ConfigEntry<string> blacklistString;
+        public static ConfigEntry<bool> filterEnabled = null!;
+        private static ConfigEntry<string> blacklistString = null!;
+        public static ConfigEntry<bool> debugLogging = null!;
+
         public static string[] blacklist {
             get;
             private set;
-        }
+        } = null!;
 
-        private static LootFilter _instance;
+        private static LootFilter _instance = null!;
+
+        public static ManualLogSource Log { get; private set; } = null!;
 
         [UsedImplicitly]
         private void Awake() {
             _instance = this;
+
+            LootFilter.Log = base.Logger;
             
             _harmony = Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), ModGUID);
 
             filterEnabled = Config.Bind("Filter", "Filter Enabled", true, "Enable Loot Filter");
             blacklistString = Config.Bind("Filter", "Item Blacklist", "", "Comma separated list (NO SPACES) of PrefabID strings (e.g. Resin,LeatherScraps)");
+            debugLogging = Config.Bind("Debug", "Debug Logging", false, "Enable debug logging for this plugin");
 
             // init blacklist
             blacklist = blacklistString.Value.Split(',');
@@ -63,12 +70,30 @@ namespace lootfilter {
     [HarmonyPatch(typeof(Inventory), nameof(Inventory.CanAddItem), new Type[] {typeof(ItemDrop.ItemData), typeof(int)})]
     public static class Inventory_CanAddItem_Patch {
         public static void Postfix(ItemDrop.ItemData item, int stack, ref bool __result) {
-            if (__result) {  // only fire when CanAddItem was going to return true
-                if (LootFilter.filterEnabled.Value) {
-                    if (LootFilter.blacklist.Contains(item.m_dropPrefab.name)) {
-                        __result = false;
+            try {
+                if (__result) {  // only fire when CanAddItem was going to return true
+                    if (LootFilter.filterEnabled.Value) {
+                        string? name = item?.m_dropPrefab?.name;
+
+                        if (string.IsNullOrEmpty(name)) {
+                            if (LootFilter.debugLogging.Value) {
+                                LootFilter.Log.LogDebug("null or empty item?.m_dropPrefab?.name (https://github.com/wonkovalheim/lootfilter/issues/2)");
+                                LootFilter.Log.LogDebug($"item null?  {item == null}");
+                                LootFilter.Log.LogDebug($"item.m_dropPrefab null? {item?.m_dropPrefab == null}");
+                                LootFilter.Log.LogDebug($"item.m_dropPrefab.name null? {item?.m_dropPrefab?.name == null}");
+                            }
+                        }
+                        else {
+                            if (LootFilter.blacklist.Contains(name)) {
+                                __result = false;  // only change result of CanAddItem if a match is in the filter
+                            }
+                        }
                     }
                 }
+            }
+            catch (Exception e) {
+                LootFilter.Log.LogError("Exception caught when executing PostFix");
+                LootFilter.Log.LogError(e.ToString());
             }
         }
     }
