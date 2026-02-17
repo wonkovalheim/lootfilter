@@ -70,24 +70,30 @@ namespace lootfilter {
     [HarmonyPatch(typeof(Inventory), nameof(Inventory.CanAddItem), new Type[] {typeof(ItemDrop.ItemData), typeof(int)})]
     public static class Inventory_CanAddItem_Patch {
         public static void Postfix(ItemDrop.ItemData item, int stack, ref bool __result) {
-            if (__result) {  // only fire when CanAddItem was going to return true
-                if (LootFilter.filterEnabled.Value) {
-                    string? name = item?.m_dropPrefab?.name;
+            try {
+                if (__result) {  // only fire when CanAddItem was going to return true
+                    if (LootFilter.filterEnabled.Value) {
+                        string? name = item?.m_dropPrefab?.name;
 
-                    if (string.IsNullOrEmpty(name)) {
-                        if (LootFilter.debugLogging.Value) {
-                            LootFilter.Log.LogDebug("null or empty item?.m_dropPrefab?.name (https://github.com/wonkovalheim/lootfilter/issues/2)");
-                            LootFilter.Log.LogDebug($"item null?  {item == null}");
-                            LootFilter.Log.LogDebug($"item.m_dropPrefab null? {item?.m_dropPrefab == null}");
-                            LootFilter.Log.LogDebug($"item.m_dropPrefab.name null? {item?.m_dropPrefab?.name == null}");
+                        if (string.IsNullOrEmpty(name)) {
+                            if (LootFilter.debugLogging.Value) {
+                                LootFilter.Log.LogDebug("null or empty item?.m_dropPrefab?.name (https://github.com/wonkovalheim/lootfilter/issues/2)");
+                                LootFilter.Log.LogDebug($"item null?  {item == null}");
+                                LootFilter.Log.LogDebug($"item.m_dropPrefab null? {item?.m_dropPrefab == null}");
+                                LootFilter.Log.LogDebug($"item.m_dropPrefab.name null? {item?.m_dropPrefab?.name == null}");
+                            }
                         }
-                    }
-                    else {
-                        if (LootFilter.blacklist.Contains(name)) {
-                            __result = false;  // only change result of CanAddItem if a match is in the filter
+                        else {
+                            if (LootFilter.blacklist.Contains(name)) {
+                                __result = false;  // only change result of CanAddItem if a match is in the filter
+                            }
                         }
                     }
                 }
+            }
+            catch (Exception e) {
+                LootFilter.Log.LogError("Exception caught when executing PostFix");
+                LootFilter.Log.LogError(e.ToString());
             }
         }
     }
