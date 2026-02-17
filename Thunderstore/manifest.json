@@ -1,6 +1,6 @@
 {
     "name": "LootFilter",
-    "version_number": "1.0.1",
+    "version_number": "1.0.2",
     "website_url": "https://github.com/wonkovalheim/lootfilter",
     "description": "Adds an item blacklist filter to the auto loot system",
     "dependencies": [
